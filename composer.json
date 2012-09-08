@@ -1,0 +1,34 @@
+{
+    "name": "socalnick/scn-esi-widget",
+    "description": "Enables ZF2 apps to output ESI tags for a widgetized and highly cacheable application.",
+    "type": "library",
+    "keywords": [
+        "zf2",
+        "esi",
+        "edge side includes",
+        "varnish",
+        "widget"
+    ],
+    "homepage": "https://github.com/SocalNick/ScnEsiWidget",
+    "authors": [
+        {
+            "name": "Nicholas Calugar",
+            "email": "njcalugar@gmail.com",
+            "homepage": "http://socalnick.github.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "ScnEsiWidget": "src/"
+        },
+        "classmap": [
+            "src/",
+            "Module.php"
+        ]
+    }
+}
+
