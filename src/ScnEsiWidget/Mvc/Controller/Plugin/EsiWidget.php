@@ -11,6 +11,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Zend\Mvc\Exception;
 use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\Mvc\LocatorAwareInterface;
+use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -67,6 +68,7 @@ class EsiWidget extends AbstractPlugin
      */
     public function addToViewModel(ViewModel $viewModel, $request, $captureTo = null)
     {
+        $event = clone($this->getEvent());
         $locator = $this->getLocator();
         $sharedEvents = $locator->get('EventManager')->getSharedManager();
 
@@ -83,8 +85,10 @@ class EsiWidget extends AbstractPlugin
             );
         }
 
-        $router = $locator->get('Router');
-        $routeMatch = $router->match($request);
+        $event->setRequest($request);
+        $result = $this->getEventManager()->trigger(MvcEvent::EVENT_ROUTE, $event);
+
+        $routeMatch = $event->getRouteMatch();
         if (!$routeMatch instanceof RouteMatch) {
             // might not want to throw exception, just return view model with error
             throw new Exception\DomainException('Could not find a route for specified request');
@@ -106,7 +110,6 @@ class EsiWidget extends AbstractPlugin
         }
 
         // Temporarily replace the response object in the event
-        $event = $this->getEvent();
         $response = $event->getResponse();
         $event->setResponse(new HttpResponse());
 
@@ -126,7 +129,7 @@ class EsiWidget extends AbstractPlugin
         }
 
         // Set the original response back to the event
-        $this->getEvent()->setResponse($response);
+        $event->setResponse($response);
 
         // Add the InjectViewModelListener back to 'dispatch'
         if ($injectViewModelListener) {
@@ -139,15 +142,23 @@ class EsiWidget extends AbstractPlugin
         }
 
         if ($return instanceof ViewModel) {
+
+            //TODO: Make this whole block smarter
+
             $routeName = $routeMatch->getMatchedRouteName();
             $routeParams = $routeMatch->getParams();
 
             // valid-renderers is not required to assemble urls for esi
             unset($routeParams['valid-renderers']);
 
+            if (isset($routeParams[ModuleRouteListener::ORIGINAL_CONTROLLER])) {
+                $routeParams['controller'] = $routeParams[ModuleRouteListener::ORIGINAL_CONTROLLER];
+                unset($routeParams[ModuleRouteListener::ORIGINAL_CONTROLLER]);
+            }
+
             // The 'default' route is the only one that has controller / action
             // Otherwise remove them
-            if ('default' != $routeName) {
+            if ('application/default' != $routeName) {
                 unset($routeParams['controller'], $routeParams['action']);
             }
 

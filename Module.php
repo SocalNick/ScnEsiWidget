@@ -4,6 +4,7 @@ namespace ScnEsiWidget;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
@@ -54,7 +55,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         $serviceManager = $app->getServiceManager();
 
         $headers = $app->getRequest()->getHeaders();
-        $surrogateCapability = true;
+        $surrogateCapability = false;
         if (
                 $headers->has('surrogate-capability')
                 && false !== strpos($headers->get('surrogate-capability')->getFieldValue(), 'ESI/1.0')
@@ -62,9 +63,15 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             $surrogateCapability = true;
         }
 
+        $controllerPluginBroker = $serviceManager->get('ControllerPluginBroker');
+        $esiWidgetPlugin = $controllerPluginBroker->get('esiWidget');
+        $esiWidgetPlugin->getEventManager()->attach($serviceManager->get('RouteListener'));
+
+        //TODO: Can this be obtained from SM?
+        $moduleRouteListener = new ModuleRouteListener();
+        $moduleRouteListener->attach($esiWidgetPlugin->getEventManager());
+
         if ($surrogateCapability) {
-            $controllerPluginBroker = $serviceManager->get('ControllerPluginBroker');
-            $esiWidgetPlugin = $controllerPluginBroker->get('esiWidget');
             $esiWidgetPlugin->setSurrogateCapability(true);
             $esiViewStrategy = $serviceManager->get('ScnEsiWidget\View\Strategy\EsiStrategy');
             $esiViewStrategy->setSurrogateCapability(true);
