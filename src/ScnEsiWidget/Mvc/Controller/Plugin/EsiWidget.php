@@ -10,7 +10,6 @@ use Zend\Http\PhpEnvironment\Response as HttpResponse;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Zend\Mvc\Exception;
 use Zend\Mvc\InjectApplicationEventInterface;
-use Zend\Mvc\LocatorAwareInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
@@ -70,8 +69,8 @@ class EsiWidget extends AbstractPlugin
     {
         $event = clone($this->getEvent());
         $locator = $this->getLocator();
-        $sharedEvents = $locator->get('EventManager')->getSharedManager();
 
+        // Set the request in the MvcEvent for this widget
         if (is_string($request)) {
             $uri = $request;
             $request = new Request();
@@ -94,23 +93,7 @@ class EsiWidget extends AbstractPlugin
             throw new Exception\DomainException('Could not find a route for specified request');
         }
 
-        // Remove the InjectViewModelListener from 'dispatch'
-        $listeners = $sharedEvents->getListeners('Zend\Stdlib\DispatchableInterface', MvcEvent::EVENT_DISPATCH);
-        $injectViewModelListener = false;
-        foreach ($listeners as $listener) {
-            $callback = $listener->getCallback();
-            if (is_array($callback)) {
-                if (isset($callback[0])) {
-                    if ($callback[0] instanceof \Zend\Mvc\View\Http\InjectViewModelListener) {
-                        $injectViewModelListener = $callback[0];
-                        $sharedEvents->detach('Zend\Stdlib\DispatchableInterface', $listener);
-                    }
-                }
-            }
-        }
-
-        // Temporarily replace the response object in the event
-        $response = $event->getResponse();
+        // Set the response in the MvcEvent to a new empty response
         $event->setResponse(new HttpResponse());
 
         if ($this->surrogateCapability) {
@@ -118,6 +101,7 @@ class EsiWidget extends AbstractPlugin
             $result = $this->getEventManager()->trigger('esi-mode.start', $this);
         }
 
+        // Use the standard ZF2 forward plugin to dispatch
         $return = $this->getController()->forward()->dispatch(
             $routeMatch->getParam('controller'),
             $routeMatch->getParams()
@@ -126,19 +110,6 @@ class EsiWidget extends AbstractPlugin
         if ($this->surrogateCapability) {
             // Trigger an event announcing "ESI Mode Stop"
             $result = $this->getEventManager()->trigger('esi-mode.stop', $this);
-        }
-
-        // Set the original response back to the event
-        $event->setResponse($response);
-
-        // Add the InjectViewModelListener back to 'dispatch'
-        if ($injectViewModelListener) {
-            $sharedEvents->attach(
-                'Zend\Stdlib\DispatchableInterface',
-                MvcEvent::EVENT_DISPATCH,
-                array($injectViewModelListener, 'injectViewModel'),
-                -100
-            );
         }
 
         if ($return instanceof ViewModel) {
