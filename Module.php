@@ -31,10 +31,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     public function getServiceConfig()
     {
         return array(
-            'invokables' => array(
-                'ScnEsiWidget\Mvc\Controller\Plugin\EsiWidget' => 'ScnEsiWidget\Mvc\Controller\Plugin\EsiWidget',
-            ),
             'factories' => array(
+                'ScnEsiWidget-ModuleOptions' => function ($sm) {
+                    $config = $sm->get('Configuration');
+
+                    return new Options\ModuleOptions(
+                        isset($config['scn-esi-widget']) ? $config['scn-esi-widget'] : array()
+                    );
+                },
                 'ScnEsiWidget\View\Renderer\EsiRenderer' => function ($sm) {
                     $renderer =  new View\Renderer\EsiRenderer();
                     $renderer->setHelperPluginManager($sm->get('ViewHelperManager'));

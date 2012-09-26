@@ -2,6 +2,7 @@
 
 namespace ScnEsiWidget\Mvc\Controller\Plugin;
 
+use ScnEsiWidget\Options\ModuleOptions;
 use Zend\EventManager\EventInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
@@ -15,11 +16,17 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\ServiceManagerAwareInterface;
 use Zend\Stdlib\Parameters;
 use Zend\View\Model\ViewModel;
 
-class EsiWidget extends AbstractPlugin
+class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
 {
+    /**
+     * @var ModuleOptions
+     */
+    protected $options;
 
     /**
      * @var bool
@@ -40,6 +47,53 @@ class EsiWidget extends AbstractPlugin
      * @var ServiceLocatorInterface
      */
     protected $locator;
+
+    /**
+     * Retrieve service manager instance
+     *
+     * @return ServiceManager
+     */
+    public function getServiceManager()
+    {
+        return $this->serviceManager;
+    }
+
+    /**
+     * Set service manager instance
+     *
+     * @param ServiceManager $serviceManager
+     * @return EsiWidget
+     */
+    public function setServiceManager(ServiceManager $serviceManager)
+    {
+        $this->serviceManager = $serviceManager;
+        return $this;
+    }
+
+    /**
+     * set options
+     *
+     * @param ModuleOptions $options
+     * @return EsiWidget
+     */
+    public function setOptions(ModuleOptions $options)
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
+     * get options
+     *
+     * @return ModuleOptions
+     */
+    public function getOptions()
+    {
+        if (!$this->options instanceof ModuleOptions) {
+            $this->setOptions($this->getServiceManager()->get('ScnEsiWidget-ModuleOptions'));
+        }
+        return $this->options;
+    }
 
     /**
      *
@@ -113,24 +167,25 @@ class EsiWidget extends AbstractPlugin
         }
 
         if ($return instanceof ViewModel) {
-
-            //TODO: Make this whole block smarter
-
             $routeName = $routeMatch->getMatchedRouteName();
             $routeParams = $routeMatch->getParams();
 
-            // valid-renderers is not required to assemble urls for esi
-            unset($routeParams['valid-renderers']);
-
+            // Use the original :controller as the route param
             if (isset($routeParams[ModuleRouteListener::ORIGINAL_CONTROLLER])) {
                 $routeParams['controller'] = $routeParams[ModuleRouteListener::ORIGINAL_CONTROLLER];
                 unset($routeParams[ModuleRouteListener::ORIGINAL_CONTROLLER]);
             }
 
-            // The 'default' route is the only one that has controller / action
-            // Otherwise remove them
-            if ('application/default' != $routeName) {
-                unset($routeParams['controller'], $routeParams['action']);
+            // The routes that need the :controller parameter are configurable
+            // If the route isn't in the list of Controller Routes, remove the param
+            if (!in_array($routeName, $this->getOptions()->getControllerRoutes())) {
+                unset($routeParams['controller']);
+            }
+
+            // The routes that need the :action parameter are configurable
+            // If the route isn't in the list of Action Routes, remove the param
+            if (!in_array($routeName, $this->getOptions()->getActionRoutes())) {
+                unset($routeParams['action']);
             }
 
             $return->setOption('RouteName', $routeName);
