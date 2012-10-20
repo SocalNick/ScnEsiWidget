@@ -134,6 +134,7 @@ public function recentTweetsAction()
 ```
 <ul>
     <li><?php echo date('h:i:s')?> @SocalNick: This is a recent tweet!</li>
-    <li><?php echo date('h:i:s', time() - 10)?> @Touge: I'm at SFPHP!</li>
+    <li><?php echo date('h:i:s', time() - 10)?> @SocalNick: This is a slightly less recent tweet!</li>
 </ul>
 ```
+
