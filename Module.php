@@ -67,7 +67,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             $surrogateCapability = true;
         }
 
-        $controllerPluginBroker = $serviceManager->get('ControllerPluginBroker');
+        $controllerPluginBroker = $serviceManager->get('ControllerPluginManager');
         $esiWidgetPlugin = $controllerPluginBroker->get('esiWidget');
         $esiWidgetPlugin->getEventManager()->attach($serviceManager->get('RouteListener'));
 
