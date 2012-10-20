@@ -53,6 +53,21 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         );
     }
 
+    public function getControllerPluginConfig()
+    {
+        return array(
+            'factories' => array(
+                'esiWidget' => function ($sm) {
+                    $moduleOptions = $sm->getServiceLocator()->get('ScnEsiWidget-ModuleOptions');
+                    $plugin = new Mvc\Controller\Plugin\EsiWidget();
+                    $plugin->setOptions($moduleOptions);
+
+                    return $plugin;
+                },
+            ),
+        );
+    }
+
     public function onBootstrap(MvcEvent $e)
     {
         $app = $e->getApplication();
