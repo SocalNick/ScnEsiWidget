@@ -86,3 +86,54 @@ sub vcl_fetch {
     }
 }
 ```
+
+Usage
+-----
+
+### Call ESI Widget Controller Plugin
+
+```php
+public function esiAction()
+{
+    $viewModel = new ViewModel();
+    $this->esiWidget()->addToViewModel($viewModel, '/application/index/recent-tweets', 'recentTweets');
+
+    $headers = $this->getResponse()->getHeaders();
+    $cacheControl = new \Zend\Http\Header\CacheControl();
+    $cacheControl->addDirective('max-age', '60');
+    $headers->addHeader($cacheControl);
+
+    return $viewModel;
+}
+```
+
+### Echo ESI Widget in View Script
+
+```
+<div><?php echo $this->recentTweets ?></div>
+```
+
+### Make the ESI Widget Action
+
+```php
+public function recentTweetsAction()
+{
+    $headers = $this->getResponse()->getHeaders();
+    $cacheControl = new \Zend\Http\Header\CacheControl();
+    $cacheControl->addDirective('max-age', '10');
+    $headers->addHeader($cacheControl);
+
+    $viewModel = new ViewModel();
+    $viewModel->setTerminal(true);
+    return $viewModel;
+}
+```
+
+### Make a View Script for ESI Widget Action
+
+```
+<ul>
+    <li><?php echo date('h:i:s')?> @SocalNick: This is a recent tweet!</li>
+    <li><?php echo date('h:i:s', time() - 10)?> @Touge: I'm at SFPHP!</li>
+</ul>
+```
