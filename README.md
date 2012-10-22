@@ -100,7 +100,7 @@ public function esiAction()
 
     $headers = $this->getResponse()->getHeaders();
     $cacheControl = new \Zend\Http\Header\CacheControl();
-    $cacheControl->addDirective('max-age', '60');
+    $cacheControl->addDirective('s-maxage', '60');
     $headers->addHeader($cacheControl);
 
     return $viewModel;
@@ -120,11 +120,12 @@ public function recentTweetsAction()
 {
     $headers = $this->getResponse()->getHeaders();
     $cacheControl = new \Zend\Http\Header\CacheControl();
-    $cacheControl->addDirective('max-age', '10');
+    $cacheControl->addDirective('s-maxage', '10');
     $headers->addHeader($cacheControl);
 
     $viewModel = new ViewModel();
     $viewModel->setTerminal(true);
+
     return $viewModel;
 }
 ```
