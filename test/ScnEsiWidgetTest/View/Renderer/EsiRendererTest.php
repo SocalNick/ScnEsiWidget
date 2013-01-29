@@ -53,6 +53,19 @@ class EsiRendererTest extends \PHPUnit_Framework_TestCase
         $test = $renderer->render('test.phtml');
     }
 
+    public function testRenderEmpty()
+    {
+        $renderer = \Mockery::mock($this->renderer);
+        $renderer->shouldReceive('url')->never();
+        $renderer->resolver()->addPath(dirname(__DIR__) . '/_templates');
+        $viewModel = new \Zend\View\Model\ViewModel();
+        $viewModel->setTemplate('empty.phtml');
+        $viewModel->setOption('routeName', 'foo');
+        $viewModel->setOption('has_parent', true);
+        $test = $renderer->render('empty.phtml');
+        $this->assertEmpty($test);
+    }
+
     public function testRender()
     {
         $renderer = \Mockery::mock('ScnEsiWidget\View\Renderer\EsiRenderer[url]');
