@@ -61,7 +61,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
     /**
      * Set service manager instance
      *
-     * @param ServiceManager $serviceManager
+     * @param  ServiceManager $serviceManager
      * @return EsiWidget
      */
     public function setServiceManager(ServiceManager $serviceManager)
@@ -74,7 +74,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
     /**
      * set options
      *
-     * @param ModuleOptions $options
+     * @param  ModuleOptions $options
      * @return EsiWidget
      */
     public function setOptions(ModuleOptions $options)
@@ -100,7 +100,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
 
     /**
      *
-     * @param bool $surrogateCapability
+     * @param  bool                                          $surrogateCapability
      * @return \ScnEsiWidget\Mvc\Controller\Plugin\EsiWidget
      */
     public function setSurrogateCapability($surrogateCapability = true)

@@ -13,6 +13,7 @@ class ModuleOptions extends AbstractOptions
     public function setControllerRoutes(array $controllerRoutes)
     {
         $this->controllerRoutes = $controllerRoutes;
+
         return $this;
     }
 
@@ -24,6 +25,7 @@ class ModuleOptions extends AbstractOptions
     public function setActionRoutes(array $actionRoutes)
     {
         $this->actionRoutes = $actionRoutes;
+
         return $this;
     }
 
