@@ -67,6 +67,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
     public function setServiceManager(ServiceManager $serviceManager)
     {
         $this->serviceManager = $serviceManager;
+
         return $this;
     }
 
@@ -79,6 +80,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
     public function setOptions(ModuleOptions $options)
     {
         $this->options = $options;
+
         return $this;
     }
 
@@ -92,6 +94,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
         if (!$this->options instanceof ModuleOptions) {
             $this->setOptions($this->getServiceManager()->get('ScnEsiWidget-ModuleOptions'));
         }
+
         return $this->options;
     }
 
@@ -103,6 +106,7 @@ class EsiWidget extends AbstractPlugin implements ServiceManagerAwareInterface
     public function setSurrogateCapability($surrogateCapability = true)
     {
         $this->surrogateCapability = (bool) $surrogateCapability;
+
         return $this;
     }
 
