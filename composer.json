@@ -17,6 +17,7 @@
             "homepage": "http://socalnick.github.com/"
         }
     ],
+    "license": "BSD-3-Clause",
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": "2.*"
