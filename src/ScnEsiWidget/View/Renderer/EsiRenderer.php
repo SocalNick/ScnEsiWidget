@@ -70,7 +70,7 @@ class EsiRenderer extends PhpRenderer
         $this->__routeParams = array();
         $this->__hasParent = null;
         $return = parent::render($nameOrModel, $values);
-        if ($this->__hasParent && $this->__routeName) {
+        if (!empty($return) && $this->__hasParent && $this->__routeName) {
             $url = $this->url($this->__routeName, $this->__routeParams);
             $return = "<esi:include src=\"$url\" onerror=\"continue\" />\n";
         }
