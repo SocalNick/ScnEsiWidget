@@ -66,9 +66,12 @@ class EsiRenderer extends PhpRenderer
      */
     public function render($nameOrModel, $values = null)
     {
-        $this->__routeName = null;
-        $this->__routeParams = array();
-        $this->__hasParent = null;
+        if(is_object($nameOrModel){
+            $this->__routeName = null;
+            $this->__routeParams = array();
+            $this->__hasParent = null;
+        }
+        
         $return = parent::render($nameOrModel, $values);
         if (!empty($return) && $this->__hasParent && $this->__routeName) {
             $url = $this->url($this->__routeName, $this->__routeParams);
