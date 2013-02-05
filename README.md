@@ -3,6 +3,8 @@ ScnEsiWidget
 
 Enables ZF2 apps to output ESI tags for a widgetized and highly cacheable application.
 
+[![Build Status](https://travis-ci.org/SocalNick/ScnEsiWidget.png?branch=master)](https://travis-ci.org/SocalNick/ScnEsiWidget)
+
 Requirements
 ------------
 * [Zend Framework 2](https://github.com/zendframework/zf2) (2.*)
