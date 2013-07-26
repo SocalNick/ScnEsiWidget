@@ -6,6 +6,7 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\Http\Request as ZendHttpRequest;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -73,27 +74,30 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         $app = $e->getApplication();
         $serviceManager = $app->getServiceManager();
 
-        $headers = $app->getRequest()->getHeaders();
-        $surrogateCapability = false;
-        if (
-                $headers->has('surrogate-capability')
-                && false !== strpos($headers->get('surrogate-capability')->getFieldValue(), 'ESI/1.0')
-        ) {
-            $surrogateCapability = true;
-        }
+        $request = $app->getRequest();
+        if ($request instanceof ZendHttpRequest){
+            $headers = $request->getHeaders();
+            $surrogateCapability = false;
+            if (
+                    $headers->has('surrogate-capability')
+                    && false !== strpos($headers->get('surrogate-capability')->getFieldValue(), 'ESI/1.0')
+            ) {
+                $surrogateCapability = true;
+            }
 
-        $controllerPluginBroker = $serviceManager->get('ControllerPluginManager');
-        $esiWidgetPlugin = $controllerPluginBroker->get('esiWidget');
-        $esiWidgetPlugin->getEventManager()->attach($serviceManager->get('RouteListener'));
+            $controllerPluginBroker = $serviceManager->get('ControllerPluginManager');
+            $esiWidgetPlugin = $controllerPluginBroker->get('esiWidget');
+            $esiWidgetPlugin->getEventManager()->attach($serviceManager->get('RouteListener'));
 
-        //TODO: Can this be obtained from SM?
-        $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($esiWidgetPlugin->getEventManager());
+            //TODO: Can this be obtained from SM?
+            $moduleRouteListener = new ModuleRouteListener();
+            $moduleRouteListener->attach($esiWidgetPlugin->getEventManager());
 
-        if ($surrogateCapability) {
-            $esiWidgetPlugin->setSurrogateCapability(true);
-            $esiViewStrategy = $serviceManager->get('ScnEsiWidget\View\Strategy\EsiStrategy');
-            $esiViewStrategy->setSurrogateCapability(true);
+            if ($surrogateCapability) {
+                $esiWidgetPlugin->setSurrogateCapability(true);
+                $esiViewStrategy = $serviceManager->get('ScnEsiWidget\View\Strategy\EsiStrategy');
+                $esiViewStrategy->setSurrogateCapability(true);
+            }
         }
     }
 }
