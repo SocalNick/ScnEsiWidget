@@ -75,7 +75,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         $serviceManager = $app->getServiceManager();
 
         $request = $app->getRequest();
-        if ($request instanceof ZendHttpRequest){
+        if ($request instanceof ZendHttpRequest) {
             $headers = $request->getHeaders();
             $surrogateCapability = false;
             if (
